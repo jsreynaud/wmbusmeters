@@ -53,10 +53,11 @@ void parseMeterConfig(Configuration *c, vector<char> &buf, string file)
     string bus;
     string name;
     string driver = "auto";
-    string id;
+    string address_expressions;
     string key = "";
     string linkmodes;
     int poll_interval = 0;
+    IdentityMode identity_mode {};
     vector<string> telegram_shells;
     vector<string> meter_shells;
     vector<string> alarm_shells;
@@ -108,7 +109,7 @@ void parseMeterConfig(Configuration *c, vector<char> &buf, string file)
         else
         if (p.first == "driver") driver = p.second;
         else
-        if (p.first == "id") id = p.second;
+        if (p.first == "id") address_expressions = p.second;
         else
         if (p.first == "key")
         {
@@ -126,6 +127,15 @@ void parseMeterConfig(Configuration *c, vector<char> &buf, string file)
             if (poll_interval == 0)
             {
                 error("Poll interval must be non-zero \"%s\"!\n", p.second.c_str());
+            }
+        }
+        else
+        if (p.first == "identitymode") {
+            identity_mode = toIdentityMode(p.second.c_str());
+
+            if (identity_mode == IdentityMode::INVALID)
+            {
+                error("Invalid identity mode: \"%s\"!\n", p.second.c_str());
             }
         }
         else
@@ -176,37 +186,24 @@ void parseMeterConfig(Configuration *c, vector<char> &buf, string file)
 
     MeterInfo mi;
 
-    mi.parse(name, driver, id, key); // sets driver, extras, name, bus, bps, link_modes, ids, name, key
+    mi.parse(name, driver, address_expressions, key); // sets driver, extras, name, bus, bps, link_modes, ids, name, key
     mi.poll_interval = poll_interval;
+    mi.identity_mode = identity_mode;
 
-    /*
-    Ignore link mode checking until all drivers have been refactored.
-    LinkModeSet default_modes = toMeterLinkModeSet(mi.driver);
-    if (!default_modes.hasAll(mi.link_modes))
-    {
-        string want = mi.link_modes.hr();
-        string has = default_modes.hr();
-        error("(cmdline) cannot set link modes to: %s because meter %s only transmits on: %s\n",
-              want.c_str(), mi.driverName().str().c_str(), has.c_str());
-    }
-    string modeshr = mi.link_modes.hr();
-    debug("(cmdline) setting link modes to %s for meter %s\n",
-            mi.link_modes.hr().c_str(), name.c_str());
-    */
-    if (!isValidMatchExpressions(id, true)) {
-        warning("Not a valid meter id nor a valid meter match expression \"%s\"\n", id.c_str());
+    if (!isValidSequenceOfAddressExpressions(address_expressions)) {
+        warning("Not a valid meter id nor a valid sequence of match expression \"%s\"\n", address_expressions.c_str());
         use = false;
     }
     if (!isValidKey(key, mi)) {
         warning("Not a valid meter key \"%s\"\n", key.c_str());
         use = false;
     }
-    if (use) {
+    if (use)
+    {
         mi.extra_constant_fields = extra_constant_fields;
         mi.extra_calculated_fields = extra_calculated_fields;
         mi.shells = telegram_shells;
         mi.meter_shells = meter_shells;
-        mi.idsc = toIdsCommaSeparated(mi.ids);
         mi.selected_fields = selected_fields;
         c->meters.push_back(mi);
     }

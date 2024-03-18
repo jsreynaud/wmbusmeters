@@ -1,4 +1,3 @@
-
 # Copyright (C) 2017-2023 Fredrik Öhrström (gpl-3.0-or-later)
 #
 # This program is free software: you can redistribute it and/or modify
@@ -153,6 +152,7 @@ $(BUILD)/%.o: src/%.c $(wildcard src/%.h)
 	$(CXX) -I/usr/include/libxml2 -fpermissive $(CXXFLAGS)  $< -MMD -c -o $@
 
 PROG_OBJS:=\
+	$(BUILD)/address.o \
 	$(BUILD)/aes.o \
 	$(BUILD)/aescmac.o \
 	$(BUILD)/bus.o \

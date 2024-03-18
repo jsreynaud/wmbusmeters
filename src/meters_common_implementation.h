@@ -59,8 +59,8 @@ struct MeterCommonImplementation : public virtual Meter
     int index();
     void setIndex(int i);
     string bus();
-    vector<string>& ids();
-    string idsc();
+    vector<AddressExpression>& addressExpressions();
+    IdentityMode identityMode();
     vector<FieldInfo> &fieldInfos();
     vector<string> &extraConstantFields();
     string name();
@@ -85,7 +85,6 @@ struct MeterCommonImplementation : public virtual Meter
     static bool isTelegramForMeter(Telegram *t, Meter *meter, MeterInfo *mi);
     MeterKeys *meterKeys();
 
-//    MeterCommonImplementation(MeterInfo &mi, string driver);
     MeterCommonImplementation(MeterInfo &mi, DriverInfo &di);
 
     ~MeterCommonImplementation() = default;
@@ -163,8 +162,9 @@ protected:
     // Override for mbus meters that need to be queried and likewise for C2/T2 wmbus-meters.
     void poll(shared_ptr<BusManager> bus);
     bool handleTelegram(AboutTelegram &about, vector<uchar> frame,
-                        bool simulated, string *id, bool *id_match, Telegram *out_analyzed = NULL);
-    void createMeterEnv(string *id,
+                        bool simulated, std::vector<Address> *addresses,
+                        bool *id_match, Telegram *out_analyzed = NULL);
+    void createMeterEnv(string id,
                         vector<string> *envs,
                         vector<string> *more_json); // Add this json "key"="value" strings.
     void printMeter(Telegram *t,
@@ -221,8 +221,8 @@ private:
     ELLSecurityMode expected_ell_sec_mode_ {};
     TPLSecurityMode expected_tpl_sec_mode_ {};
     string name_;
-    vector<string> ids_;
-    string idsc_;
+    vector<AddressExpression> address_expressions_;
+    IdentityMode identity_mode_;
     vector<function<void(Telegram*,Meter*)>> on_update_;
     int num_updates_ {};
     time_t datetime_of_update_ {};

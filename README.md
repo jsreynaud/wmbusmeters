@@ -6,6 +6,33 @@ wireless wm-bus meters.  The readings can then be published using
 MQTT, curled to a REST api, inserted into a database or stored in a
 log file.
 
+# What does it do?
+
+Wmbusmeters converts incoming telegrams from (w)mbus/OMS compatible meters like:
+`1844AE4C4455223368077A55000000_041389E20100023B0000`
+
+into human readable:
+`MyTapWater  33225544  123.529 m³  0 m³/h  2024-03-03 19:36:22`
+
+or into csv:
+`MyTapWater;33225544;123.529;0;2024-03-03 19:36:45`
+
+or into json:
+```json
+{
+    "media":"water",
+    "meter":"iperl",
+    "name":"MyTapWater",
+    "id":"33225544",
+    "max_flow_m3h":0,
+    "total_m3":123.529,
+    "timestamp":"2024-03-03T18:37:00Z"
+}
+```
+
+Wmbusmeters can collect telegrams from radio using hardware dongles or rtl-sdr software radio dongles,
+or from m-bus meters using serial ports, or from files/pipes.
+
 [FAQ/WIKI/MANUAL pages](https://wmbusmeters.github.io/wmbusmeters-wiki/)
 
 The program runs on GNU/Linux, MacOSX, FreeBSD, and Raspberry Pi.
@@ -130,9 +157,11 @@ bus the mbus poll request should be sent to.
 wmbusmeters --pollinterval=60s MAIN=/dev/ttyUSB0:mbus:2400 MyTempMeter piigth:MAIN:mbus 12001932 NOKEY
 ```
 
-If you want to poll an mbus meter using the primary address, just use
-a number between 0 and 250 instead of the full 8 digit secondary
-address.
+If you want to poll an mbus meter using the primary address, use p0 to p250 (deciman numbers)
+instead of the full 8 digit secondary address.
+```
+wmbusmeters --pollinterval=60s MAIN=/dev/ttyUSB0:mbus:2400 MyTempMeter piigth:MAIN:mbus p0 NOKEY
+```
 
 # Example wmbusmeter.conf file
 
@@ -173,7 +202,7 @@ And an mbus meter file in /etc/wmbusmeters.d/MyTempHygro
 ```ini
 name=MyTempHygro
 id=11223344
-driver=piigth:mbus
+driver=piigth:MAIN:mbus
 pollinterval=60s
 ```
 
@@ -217,8 +246,12 @@ The latest reading of the meter can also be found here: `/var/lib/wmbusmeters/me
 You can use several ids using `id=1111111,2222222,3333333` or you can listen to all
 meters of a certain type `id=*` or you can suffix with star `id=8765*` to match
 all meters with a given prefix. If you supply at least one positive match rule, then you
-can add negative match rules as well. For example `id=*,!2222*`
+can add filter out rules as well. For example `id=*,!2222*`
 which will match all meter ids, except those that begin with 2222.
+
+You can also specify the exact manufacturer, version and type: `id=11111111.M=KAM.V=1b.T=16`
+or a subset: `id=11111111.T=16` or all telegrams from 22222222 except those with version 77:
+`id=22222222,!22222222.V=77`
 
 When matching all meters from the command line you can use `ANYID` instead of `*` to avoid shell quotes.
 
@@ -419,6 +452,7 @@ As {options} you can use:
     --exitafter=<time> exit program after time, eg 20h, 10m 5s
     --format=<hr/json/fields> for human readable, json or semicolon separated fields
     --help list all options
+    --identitymode=(id|id-mfct|full|none) group meter state based on the identity mode. Default is id.
     --ignoreduplicates=<bool> ignore duplicate telegrams, remember the last 10 telegrams
     --field_xxx=yyy always add "xxx"="yyy" to the json output and add shell env METER_xxx=yyy (--json_xxx=yyy also works)
     --license print GPLv3+ license
