@@ -2412,6 +2412,15 @@ bool FieldInfo::extractNumeric(Meter *m, Telegram *t, DVEntry *dve)
         m->setNumericValue(this, dve, display_unit_, convert(extracted_double_value, decoded_unit, display_unit_));
         t->addMoreExplanation(dve->offset, renderJson(m, dve));
         found = true;
+    } else {
+        string extracted_string_value;
+        if (dve->extractReadableString(&extracted_string_value)) {
+            m->setStringValue(this, extracted_string_value, dve);
+            t->addMoreExplanation(dve->offset, renderJson(m, dve));
+            found = true;
+        } else {
+        }
+
     }
     return found;
 }
