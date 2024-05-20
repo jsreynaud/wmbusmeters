@@ -44,7 +44,7 @@ A driver file looks like this: driver { name = abc123 ... }
 Failed to load driver from file: testoutput/driver.xmq
 EOF
 
-$PROG 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NO_KEY > $TEST/test_output.txt 2>&1 || true
+$PROG 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NOKEY > $TEST/test_output.txt 2>&1 || true
 
 performCheck
 
@@ -62,7 +62,7 @@ The driver name must consist of lower case ascii a-z and digits 0-9.
 Failed to load driver from file: testoutput/driver.xmq
 EOF
 
-$PROG 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NO_KEY > $TEST/test_output.txt 2>&1 || true
+$PROG 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NOKEY > $TEST/test_output.txt 2>&1 || true
 
 performCheck
 
@@ -93,7 +93,7 @@ WaterMeter
 Failed to load driver from file: testoutput/driver.xmq
 EOF
 
-$PROG 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NO_KEY > $TEST/test_output.txt 2>&1 || true
+$PROG 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NOKEY > $TEST/test_output.txt 2>&1 || true
 
 performCheck
 
@@ -123,7 +123,7 @@ WaterMeter
 Failed to load driver from file: testoutput/driver.xmq
 EOF
 
-$PROG 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NO_KEY > $TEST/test_output.txt 2>&1 || true
+$PROG 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NOKEY > $TEST/test_output.txt 2>&1 || true
 
 performCheck
 
@@ -142,7 +142,7 @@ Where you change total_m3 to your meters most important field.
 Failed to load driver from file: testoutput/driver.xmq
 EOF
 
-$PROG 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NO_KEY > $TEST/test_output.txt 2>&1 || true
+$PROG 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NOKEY > $TEST/test_output.txt 2>&1 || true
 
 performCheck
 
@@ -164,7 +164,7 @@ or as 4 lower case hex digits.
 Failed to load driver from file: testoutput/driver.xmq
 EOF
 
-$PROG 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NO_KEY > $TEST/test_output.txt 2>&1 || true
+$PROG 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NOKEY > $TEST/test_output.txt 2>&1 || true
 
 performCheck
 
@@ -192,7 +192,7 @@ or as 4 lower case hex digits.
 Failed to load driver from file: testoutput/driver.xmq
 EOF
 
-$PROG 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NO_KEY > $TEST/test_output.txt 2>&1 || true
+$PROG 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NOKEY > $TEST/test_output.txt 2>&1 || true
 
 performCheck
 
@@ -213,7 +213,7 @@ Remember to add for example: field { name = total ... }
 Hej;?total_m3?
 EOF
 
-$PROG --format=fields --selectfields=name,total_m3 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NO_KEY > $TEST/test_output.txt 2>&1 || true
+$PROG --format=fields --selectfields=name,total_m3 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NOKEY > $TEST/test_output.txt 2>&1 || true
 
 performCheck
 
@@ -235,7 +235,7 @@ Either indirectly based on the quantity or directly based on the display_unit.
 Hej;?total_m3?
 EOF
 
-$PROG --format=fields --selectfields=name,total_m3 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NO_KEY > $TEST/test_output.txt 2>&1 || true
+$PROG --format=fields --selectfields=name,total_m3 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NOKEY > $TEST/test_output.txt 2>&1 || true
 
 performCheck
 
@@ -279,7 +279,7 @@ Dimensionless
 Hej;?total_m3?
 EOF
 
-$PROG --format=fields --selectfields=name,total_m3 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NO_KEY > $TEST/test_output.txt 2>&1 || true
+$PROG --format=fields --selectfields=name,total_m3 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NOKEY > $TEST/test_output.txt 2>&1 || true
 
 performCheck
 
@@ -322,7 +322,7 @@ Dimensionless
 Hej;?total_m3?
 EOF
 
-$PROG --format=fields --selectfields=name,total_m3 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NO_KEY > $TEST/test_output.txt 2>&1 || true
+$PROG --format=fields --selectfields=name,total_m3 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NOKEY > $TEST/test_output.txt 2>&1 || true
 
 performCheck
 
@@ -340,7 +340,7 @@ cat > $TEST/test_expected.txt <<EOF
 Hej;null
 EOF
 
-$PROG --format=fields --selectfields=name,total_m3 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NO_KEY > $TEST/test_output.txt 2>&1 || true
+$PROG --format=fields --selectfields=name,total_m3 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NOKEY > $TEST/test_output.txt 2>&1 || true
 
 performCheck
 
@@ -357,7 +357,7 @@ cat > $TEST/test_expected.txt <<EOF
 Hej	4712.13 m³
 EOF
 
-$PROG --format=hr --selectfields=name,total_m3 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NO_KEY > $TEST/test_output.txt 2>&1 || true
+$PROG --format=hr --selectfields=name,total_m3 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NOKEY > $TEST/test_output.txt 2>&1 || true
 
 performCheck
 
@@ -384,7 +384,7 @@ Any
 Hej	?total_m3?
 EOF
 
-$PROG --format=hr --selectfields=name,total_m3 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NO_KEY > $TEST/test_output.txt 2>&1 || true
+$PROG --format=hr --selectfields=name,total_m3 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NOKEY > $TEST/test_output.txt 2>&1 || true
 
 performCheck
 
@@ -410,7 +410,7 @@ Any
 Hej	?total_m3?
 EOF
 
-$PROG --format=hr --selectfields=name,total_m3 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NO_KEY > $TEST/test_output.txt 2>&1 || true
+$PROG --format=hr --selectfields=name,total_m3 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NOKEY > $TEST/test_output.txt 2>&1 || true
 
 performCheck
 
@@ -447,6 +447,7 @@ ActualityDuration
 FabricationNo
 EnhancedIdentification
 EnergyMWh
+EnergyGJ
 RelativeHumidity
 AccessNumber
 Medium
@@ -477,7 +478,7 @@ AnyPowerVIF
 Hej	?total_m3?
 EOF
 
-$PROG --format=hr --selectfields=name,total_m3 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NO_KEY > $TEST/test_output.txt 2>&1 || true
+$PROG --format=hr --selectfields=name,total_m3 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NOKEY > $TEST/test_output.txt 2>&1 || true
 
 performCheck
 
@@ -494,6 +495,25 @@ cat > $TEST/test_expected.txt <<EOF
 Hej	123.529 m³
 EOF
 
-$PROG --format=hr --selectfields=name,total_m3 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NO_KEY > $TEST/test_output.txt 2>&1 || true
+$PROG --format=hr --selectfields=name,total_m3 1844AE4C4455223399077A55000000_041389E20100023B0000 Hej $TEST/driver.xmq 33225544 NOKEY > $TEST/test_output.txt 2>&1 || true
+
+performCheck
+
+TESTNAME="Test lookup of bits"
+TESTRESULT="ERROR"
+cat > $TEST/driver.xmq <<EOF
+driver{name=kampress meter_type=PressureSensor detect{mvt=KAM,01,18} default_fields=name,pressure,status
+    field{name=status quantity=Text match{measurement_type=Instantaneous vif_range=ErrorFlags}
+          lookup{name=ERROR_FLAGS map_type=BitToString mask_bits=0xffff default_message=OK
+                 map{name=DROP value=0x01 test=Set}map{name=LOW value=0x08 test=Set}}}
+    field{name=pressure quantity=Pressure match{measurement_type=Instantaneous vif_range=Pressure}}
+}
+EOF
+
+cat > $TEST/test_expected.txt <<EOF
+Hej	1.02 bar	LOW
+EOF
+
+$PROG --format=hr --selectfields=name,pressure_bar,status 32442D2C1703007701188D280080E39322DB8F78_22696600126967000269660005FF091954A33A05FF0A99BD823A02FD170800 Hej $TEST/driver.xmq 77000317 NOKEY > $TEST/test_output.txt 2>&1 || true
 
 performCheck

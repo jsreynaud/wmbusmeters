@@ -11,7 +11,7 @@ fi
 
 if ! command -v jq > /dev/null
 then
-    echo "You have to install jq !"
+    echo "You have to install jq! Try: sudo apt install jq"
     exit 1
 fi
 
@@ -34,6 +34,9 @@ tests/test_non_existant_driver.sh $PROG
 if [ "$?" != "0" ]; then RC="1"; fi
 
 tests/test_mbus.sh $PROG
+if [ "$?" != "0" ]; then RC="1"; fi
+
+tests/test_libmbus_secondary_address.sh $PROG
 if [ "$?" != "0" ]; then RC="1"; fi
 
 tests/test_anyid.sh $PROG
