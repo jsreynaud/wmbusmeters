@@ -2010,6 +2010,10 @@ LIST_OF_QUANTITIES
     fill_with_units_from(Quantity::Energy, &from_set);
     fill_with_units_from(Quantity::Energy, &to_set);
 
+    // 1 kwh is 1000 wh
+    test_si_convert(1.0, 1000, Unit::KWH, "kwh", Unit::WH, "wh", Quantity::Energy, &from_set, &to_set);
+    // 2000 wh is 2 wh
+    test_si_convert(2000.0, 2.0, Unit::WH, "wh", Unit::KWH, "kwh", Quantity::Energy, &from_set, &to_set);
     // 1 kwh is 3.6 mj
     test_si_convert(1.0, 3.6, Unit::KWH, "kwh", Unit::MJ, "mj", Quantity::Energy, &from_set, &to_set);
     // 1 kwh is 0.0036 gj
@@ -2085,13 +2089,41 @@ LIST_OF_QUANTITIES
     fill_with_units_from(Quantity::Power, &from_set);
     fill_with_units_from(Quantity::Power, &to_set);
 
-    test_si_convert(1, 1, Unit::KW, "kw", Unit::KW, "kw", Quantity::Power, &from_set, &to_set);
+    test_si_convert(1, 1000, Unit::KW, "kw", Unit::W, "w", Quantity::Power, &from_set, &to_set);
+    test_si_convert(1000, 1, Unit::W, "w", Unit::KW, "kw", Quantity::Power, &from_set, &to_set);
+
     // The power variant is m3ch.
     test_si_convert(99.0, 99.0, Unit::M3CH, "m3ch", Unit::M3CH, "m3ch", Quantity::Power, &from_set, &to_set);
 
     test_expected_failed_si_convert(Unit::M3CH, Unit::KW, Quantity::Power);
 
     check_units_tested(from_set, to_set, Quantity::Power);
+
+    // Test reactive power kvar unit: kvar
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    q_set.erase(Quantity::Reactive_Power);
+    fill_with_units_from(Quantity::Reactive_Power, &from_set);
+    fill_with_units_from(Quantity::Reactive_Power, &to_set);
+
+    // 1 kvar is 1kw
+    test_si_convert(1.0, 1.0, Unit::KVAR, "kvar", Unit::KW, "kvar", Quantity::Reactive_Power, &from_set, &to_set);
+    test_si_convert(1.0, 1.0, Unit::KW, "kvar", Unit::KVAR, "kvar", Quantity::Reactive_Power, &from_set, &to_set);
+
+    check_units_tested(from_set, to_set, Quantity::Reactive_Power);
+
+    // Test apparent power kva unit: kva
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    q_set.erase(Quantity::Apparent_Power);
+    fill_with_units_from(Quantity::Apparent_Power, &from_set);
+    fill_with_units_from(Quantity::Apparent_Power, &to_set);
+
+    // 1 kva is 1kw
+    test_si_convert(1.0, 1.0, Unit::KVA, "kva", Unit::KW, "kva", Quantity::Apparent_Power, &from_set, &to_set);
+    test_si_convert(1.0, 1.0, Unit::KW, "kva", Unit::KVA, "kva", Quantity::Apparent_Power, &from_set, &to_set);
+
+    check_units_tested(from_set, to_set, Quantity::Apparent_Power);
 
     // Test volume flow units: m3h lh
     /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2719,8 +2751,8 @@ void test_formulas_stringinterpolation()
     unique_ptr<StringInterpolator> f = unique_ptr<StringInterpolator>(new StringInterpolatorImplementation());
 
     string p = "history_{storage_counter-12counter}_value";
-    f->parse(p);
-    string s = f->apply(&dve);
+    f->parse(NULL, p);
+    string s = f->apply(NULL, &dve);
     string e = "history_5_value";
 
     if (s != e)
@@ -2732,8 +2764,8 @@ void test_formulas_stringinterpolation()
     }
 
     p = "{storage_counter}_{tariff_counter}_{2counter*subunit_counter}";
-    f->parse(p);
-    s = f->apply(&dve);
+    f->parse(NULL, p);
+    s = f->apply(NULL, &dve);
     e = "17_3_4";
 
     if (s != e)

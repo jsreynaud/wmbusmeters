@@ -41,6 +41,8 @@
     X(Reactive_Energy,KVARH)  \
     X(Apparent_Energy,KVAH)   \
     X(Power,KW)               \
+    X(Reactive_Power,KVAR)    \
+    X(Apparent_Power,KVA)     \
     \
     X(Volume,M3)              \
     X(Flow,M3H)               \
@@ -79,6 +81,7 @@ LIST_OF_QUANTITIES
     X(MOL,mol,"mol",AmountOfSubstance,"mole")  \
     X(CD,cd,"cd",LuminousIntensity,"candela")  \
     \
+    X(WH,wh,"Wh",Energy,"Watt hour")           \
     X(KWH,kwh,"kWh",Energy,"kilo Watt hour")   \
     X(MJ,mj,"MJ",Energy,"Mega Joule")          \
     X(GJ,gj,"GJ",Energy,"Giga Joule")          \
@@ -86,7 +89,10 @@ LIST_OF_QUANTITIES
     X(KVAH,kvah,"kVAh",Apparent_Energy,"kilo volt amperes hour")        \
     X(M3C,m3c,"m³°C",Energy,"cubic meter celsius")                      \
     \
+    X(W,w,"W",Power,"Watt")                                             \
     X(KW,kw,"kW",Power,"kilo Watt")                                     \
+    X(KVAR,kvar,"kVAR",Reactive_Power,"kilo volt amperes reactive")     \
+    X(KVA,kva,"kVA",Apparent_Power,"kilo volt amperes")                 \
     X(M3CH,m3ch,"m³°C/h",Power,"cubic meter celsius per hour")          \
     \
     X(M3,m3,"m³",Volume,"cubic meter")                                  \

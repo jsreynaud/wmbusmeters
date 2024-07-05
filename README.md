@@ -52,7 +52,7 @@ The program runs on GNU/Linux, MacOSX, FreeBSD, and Raspberry Pi.
 dnf install wmbusmeters
 ```
 
-Availability of **wmbusmeters** for other Linux distributions can be checked on [release-monitoring](https://release-monitoring.org/project/88654/) project page.
+**wmbusmeters** for [Debian](https://tracker.debian.org/pkg/wmbusmeters) is currently available through Experimental repositories. Availability for other Linux distributions can be checked on [release-monitoring](https://release-monitoring.org/project/88654/) project page.
 
 # Docker
 
@@ -605,6 +605,7 @@ Any bus controller dongle/board behaving like a plain serial port.
 Supported water meters:
 Aventies (aventieswm)
 Apator at-wmbus-08   (apator08) (non-standard protocol)
+Apator at-wmbus-08-2   (apator082) (non-standard protocol)
 Apator at-wmbus-16-2 (apator162) (non-standard protocol)
 Apator at-wmbus-17-2 (apator172) (non-standard protocol)
 Apator Ultrimis (ultrimis)
