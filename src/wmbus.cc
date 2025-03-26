@@ -2824,10 +2824,10 @@ double vifScale(int vif)
     case 0x7b01: { double exp = (vif & 0x1)+2; return pow(10.0, -exp); }
 
         // Active energy 0.1 or 1 GJ normalize to 100 MJ or 1000 MJ
-        // 7b09 19 -> 1.9 G -> 1 900 KWh
-        // 7b0A 19 -> 19 GJ -> 19 000 MJ
-    case 0x7b09:
-    case 0x7b0A: { double exp = (vif & 0x1)+2; return pow(10.0, -exp); }
+        // 7b08 19 -> 1.9 G -> 1 900 KWh
+        // 7b09 19 -> 19 GJ -> 19 000 MJ
+    case 0x7b08:
+    case 0x7b09: { double exp = (vif & 0x1)+2; return pow(10.0, -exp); }
 
         // relative humidity is a dimensionless value.
     case 0x7b1a: return 10.0; // Relative humidity 0.1 %
@@ -4133,6 +4133,18 @@ static bool ignore_duplicate_telegrams_ = false;
 void setIgnoreDuplicateTelegrams(bool idt)
 {
     ignore_duplicate_telegrams_ = idt;
+}
+
+static bool detailed_first_ = false;
+
+void setDetailedFirst(bool df)
+{
+    detailed_first_ = df;
+}
+
+bool getDetailedFirst()
+{
+    return detailed_first_;
 }
 
 bool BusDeviceCommonImplementation::handleTelegram(AboutTelegram &about, vector<uchar> frame)
@@ -5547,11 +5559,11 @@ Detected detectBusDeviceOnTTY(string tty,
         }
     }
 
-    // Talk iu880b with it...
+    // Talk iu891a with it...
     // assumes this device is configured for 115200 bps, which seems to be the default.
-    if (has_auto || probe_for.count(BusDeviceType::DEVICE_IU880B))
+    if (has_auto || probe_for.count(BusDeviceType::DEVICE_IU891A))
     {
-        if (detectIU880B(&detected, handler) == AccessCheck::AccessOK)
+        if (detectIU891A(&detected, handler) == AccessCheck::AccessOK)
         {
             return detected;
         }

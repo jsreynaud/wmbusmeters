@@ -59,7 +59,7 @@ void parseMeterConfig(Configuration *c, vector<char> &buf, string file)
     int poll_interval = 0;
     IdentityMode identity_mode {};
     vector<string> telegram_shells;
-    vector<string> meter_shells;
+    vector<string> new_meter_shells;
     vector<string> alarm_shells;
     vector<string> extra_constant_fields;
     vector<string> extra_calculated_fields;
@@ -144,7 +144,7 @@ void parseMeterConfig(Configuration *c, vector<char> &buf, string file)
         }
         else
         if (p.first == "metershell") {
-            meter_shells.push_back(p.second);
+            new_meter_shells.push_back(p.second);
         }
         else
         if (p.first == "alarmshell") {
@@ -207,7 +207,7 @@ void parseMeterConfig(Configuration *c, vector<char> &buf, string file)
         mi.extra_constant_fields = extra_constant_fields;
         mi.extra_calculated_fields = extra_calculated_fields;
         mi.shells = telegram_shells;
-        mi.meter_shells = meter_shells;
+        mi.new_meter_shells = new_meter_shells;
         mi.selected_fields = selected_fields;
         c->meters.push_back(mi);
     }
@@ -290,6 +290,21 @@ void handleIgnoreDuplicateTelegrams(Configuration *c, string value)
     }
     else {
         warning("ignoreduplicates should be either true or false, not \"%s\"\n", value.c_str());
+    }
+}
+
+void handleDetailedFirst(Configuration *c, string value)
+{
+    if (value == "true")
+    {
+        c->detailed_first = true;
+    }
+    else if (value == "false")
+    {
+        c->detailed_first = false;
+    }
+    else {
+        warning("detailedfirst should be either true or false, not \"%s\"\n", value.c_str());
     }
 }
 
@@ -519,6 +534,10 @@ void handleMeterfilesTimestamp(Configuration *c, string type)
     {
         c->meterfiles_timestamp = MeterFileTimestamp::Day;
     }
+    else if (type == "month")
+    {
+        c->meterfiles_timestamp = MeterFileTimestamp::Month;
+    }
     else if (type == "hour")
     {
         c->meterfiles_timestamp = MeterFileTimestamp::Hour;
@@ -646,7 +665,7 @@ void handleShell(Configuration *c, string cmdline)
 
 void handleMeterShell(Configuration *c, string cmdline)
 {
-    c->meter_shells.push_back(cmdline);
+    c->new_meter_shells.push_back(cmdline);
 }
 
 void handleAlarmShell(Configuration *c, string cmdline)
@@ -709,6 +728,7 @@ shared_ptr<Configuration> loadConfiguration(string root, ConfigOverrides overrid
         if (p.first == "loglevel") handleLoglevel(c, p.second);
         else if (p.first == "internaltesting") handleInternalTesting(c, p.second);
         else if (p.first == "ignoreduplicates") handleIgnoreDuplicateTelegrams(c, p.second);
+        else if (p.first == "detailedfirst") handleDetailedFirst(c, p.second);
         else if (p.first == "device") handleDeviceOrHex(c, p.second);
         else if (p.first == "donotprobe") handleDoNotProbe(c, p.second);
         else if (p.first == "listento") handleListenTo(c, p.second);

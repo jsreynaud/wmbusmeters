@@ -49,6 +49,7 @@ int main(int argc, char **argv);
 shared_ptr<Printer> create_printer(Configuration *config);
 SpecifiedDevice *find_specified_device_from_detected(Configuration *c, Detected *d);
 void list_fields(Configuration *config, string meter_type);
+void print_driver(Configuration *config, string meter_type);
 void list_shell_envs(Configuration *config, string meter_type);
 void list_meters(Configuration *config);
 void list_units();
@@ -58,7 +59,7 @@ void regular_checkup(Configuration *config);
 bool start(Configuration *config);
 void start_using_config_files(string root, bool is_daemon, ConfigOverrides overrides);
 
-void start_daemon(string pid_file, ConfigOverrides overrides);
+void start_daemon(string pid_file, string root, ConfigOverrides overrides);
 
 void setup_log_file(Configuration *config);
 void setup_meters(Configuration *config, MeterManager *manager);
@@ -138,6 +139,12 @@ provided you with this binary. Read the full license for all details.
         exit(0);
     }
 
+    if (config->print_driver)
+    {
+        print_driver(config.get(), config->list_meter);
+        exit(0);
+    }
+
     if (config->list_meters)
     {
         list_meters(config.get());
@@ -161,7 +168,7 @@ provided you with this binary. Read the full license for all details.
 
     if (config->daemon)
     {
-        start_daemon(config->pid_file, config->overrides);
+        start_daemon(config->pid_file, config->config_root, config->overrides);
         exit(0);
     }
 
@@ -187,6 +194,7 @@ shared_ptr<Printer> create_printer(Configuration *config)
                                            config->fields,
                                            config->separator, config->meterfiles, config->meterfiles_dir,
                                            config->use_logfile, config->logfile,
+                                           config->new_meter_shells,
                                            config->telegram_shells,
                                            config->meterfiles_action == MeterFileType::Overwrite,
                                            config->meterfiles_naming,
@@ -213,6 +221,7 @@ void list_shell_envs(Configuration *config, string meter_driver)
     printf("METER_DEVICE\n"
            "METER_ID\n"
            "METER_JSON\n"
+           "METER_DRIVER\n"
            "METER_MEDIA\n"
            "METER_TYPE\n"
            "METER_NAME\n"
@@ -267,7 +276,10 @@ void list_fields(Configuration *config, string meter_driver)
         string name = fi.vname();
         if (fi.xuantity() != Quantity::Text)
         {
-            name += "_"+unitToStringLowerCase(defaultUnitForQuantity(fi.xuantity()));
+            Unit u = defaultUnitForQuantity(fi.xuantity());
+            Unit du = fi.displayUnit();
+            if (du != Unit::Unknown) u = du;
+            name += "_"+unitToStringLowerCase(u);
         }
 
         if ((int)name.size() > width) width = name.size();
@@ -301,11 +313,40 @@ void list_fields(Configuration *config, string meter_driver)
         string name = fi.vname();
         if (fi.xuantity() != Quantity::Text)
         {
-            name += "_"+unitToStringLowerCase(defaultUnitForQuantity(fi.xuantity()));
+            Unit u = defaultUnitForQuantity(fi.xuantity());
+            Unit du = fi.displayUnit();
+            if (du != Unit::Unknown) u = du;
+            name += "_"+unitToStringLowerCase(u);
         }
 
         string fn = padLeft(name, width);
         printf("%s  %s\n", fn.c_str(), fi.help().c_str());
+    }
+}
+
+void print_driver(Configuration *config, string meter_driver)
+{
+    loadAllBuiltinDrivers();
+
+    MeterInfo mi;
+    shared_ptr<Meter> meter;
+    DriverInfo di;
+
+    mi.driver_name = meter_driver;
+    if (!lookupDriverInfo(meter_driver, &di))
+    {
+        error("info='No such driver %s'\n", meter_driver.c_str());
+    }
+    meter = di.construct(mi);
+
+    const string f = di.getDynamicFileName();
+    if (f != "")
+    {
+        printf("%s\n", di.getDynamicSource().c_str());
+    }
+    else
+    {
+        printf("info='Driver is binary only.'\n");
     }
 }
 
@@ -535,7 +576,12 @@ bool start(Configuration *config)
     stderrEnabled(config->use_stderr_for_log);
     setAlarmShells(config->alarm_shells);
     setIgnoreDuplicateTelegrams(config->ignore_duplicate_telegrams);
-
+    setDetailedFirst(config->detailed_first);
+    if (config->new_meter_shells.size() > 0)
+    {
+        // We have metershells, force detailed first telegram.
+        setDetailedFirst(true);
+    }
     log_start_information(config);
 
     // Create the manager monitoring all filedescriptors and invoking callbacks.
@@ -544,14 +590,6 @@ bool start(Configuration *config)
     // to achive a nice shutdown.
     onExit(call(serial_manager_.get(),stop));
 
-    /*
-    Detected d;
-    d.specified_device.file = "/dev/ttyUSB0";
-    d.found_file = "/dev/ttyUSB0";
-    d.specified_device.type = BusDeviceType::DEVICE_IU880B;
-
-    detectIU880B(&d, serial_manager_);
-*/
     // Create the printer object that knows how to translate
     // telegrams into json, fields that are written into log files
     // or sent to shell invocations.
@@ -572,40 +610,8 @@ bool start(Configuration *config)
     // configures the devices according to the specification.
     bus_manager_   = createBusManager(serial_manager_, meter_manager_);
 
-    // When a meter is added, print it, shell it, log it, etc.
-    meter_manager_->whenMeterAdded(
-        [&](shared_ptr<Meter> meter)
-        {
-            vector<string> *shells = &config->meter_shells;
-            if (meter->shellCmdlinesMeterAdded().size() > 0) {
-                shells = &meter->shellCmdlinesMeterAdded();
-            }
-
-            if (shells->size() < 1) {
-                // Early return when no meter_shell configured by user
-                return;
-            }
-
-            vector<string> envs;
-
-            string id = "";
-            if (meter->addressExpressions().size() > 0)
-            {
-                id = meter->addressExpressions().back().id;
-            }
-
-            meter->createMeterEnv(id, &envs, &config->extra_constant_fields);
-
-            for (auto &s : *shells) {
-                vector<string> args;
-                args.push_back("-c");
-                args.push_back(s);
-                invokeShell("/bin/sh", args, envs);
-            }
-        }
-    );
-
     // When a meter is updated, print it, shell it, log it, etc.
+    // The first update will trigger the add callback (metershell)
     meter_manager_->whenMeterUpdated(
         [&](Telegram *t,Meter *meter)
         {
@@ -710,7 +716,7 @@ bool start(Configuration *config)
     return gotHupped();
 }
 
-void start_daemon(string pid_file, ConfigOverrides overrides)
+void start_daemon(string pid_file, string root, ConfigOverrides overrides)
 {
     setlogmask(LOG_UPTO (LOG_INFO));
     openlog("wmbusmetersd", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
@@ -760,7 +766,7 @@ void start_daemon(string pid_file, ConfigOverrides overrides)
     if (open("/dev/null", O_RDWR) == -1) {
         error("Failed to reopen stderr while daemonising (errno=%d)",errno);
     }
-    start_using_config_files("", true, overrides);
+    start_using_config_files(root, true, overrides);
 }
 
 void start_using_config_files(string root, bool is_daemon, ConfigOverrides overrides)

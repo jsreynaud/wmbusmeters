@@ -96,7 +96,7 @@ struct MeterInfo
     LinkModeSet link_modes;
     int bps {};     // For mbus communication you need to know the baud rate.
     vector<string> shells;
-    vector<string> meter_shells;
+    vector<string> new_meter_shells;
     vector<string> extra_constant_fields; // Additional static fields that are added to each message.
     vector<string> extra_calculated_fields; // Additional field calculated using formulas.
     vector<string> selected_fields; // Usually set to the default fields, but can be override in meter config.
@@ -119,7 +119,7 @@ struct MeterInfo
         address_expressions = aes;
         key = k;
         shells = s;
-        meter_shells = ms;
+        new_meter_shells = ms;
         extra_constant_fields = j;
         extra_calculated_fields = calcfs;
         link_modes = lms;
@@ -133,7 +133,7 @@ struct MeterInfo
         address_expressions.clear();
         key = "";
         shells.clear();
-        meter_shells.clear();
+        new_meter_shells.clear();
         extra_constant_fields.clear();
         extra_calculated_fields.clear();
         link_modes.clear();
@@ -173,6 +173,7 @@ private:
     bool has_process_content_ = false; // Mark this driver as having mfct specific decoding.
     XMQDoc *dynamic_driver_ {}; // Configuration loaded from driver file.
     string dynamic_file_name_; // Name of actual loaded driver file.
+    string dynamic_source_xmq_ {}; // A copy of the xmq used to create a dynamic driver.
 
 public:
     ~DriverInfo();
@@ -187,8 +188,11 @@ public:
     void addDetection(uint16_t mfct, uchar type, uchar ver) { detect_.push_back({ mfct, type, ver }); }
     void usesProcessContent() { has_process_content_ = true; }
     void setDynamic(const string &file_name, XMQDoc *driver) { dynamic_file_name_ = file_name; dynamic_driver_ = driver; }
+    void setDynamicSource(const string &content) { dynamic_source_xmq_ = content; }
+
     XMQDoc *getDynamicDriver() { return dynamic_driver_; }
     const string &getDynamicFileName() { return dynamic_file_name_; }
+    const string &getDynamicSource() { return dynamic_source_xmq_; }
 
     vector<DriverDetect> &detect() { return detect_; }
 
@@ -341,6 +345,8 @@ struct FieldInfo
 
     string str();
 
+    void markAsLibrary() { from_library_ = true; index_ = -1; }
+
 private:
 
     int index_; // The field infos for a meter are ordered.
@@ -372,9 +378,13 @@ private:
 
     // If the field name template could not be parsed.
     bool valid_field_name_ {};
+
+    // If true then this field was fetched from the library.
+    bool from_library_ {};
 };
 
 struct BusManager;
+struct MeterManager;
 
 struct Meter
 {
@@ -395,6 +405,9 @@ struct Meter
     virtual void setSelectedFields(vector<string> &f) = 0;
     virtual string name() = 0;
     virtual DriverName driverName() = 0;
+    virtual DriverInfo *driverInfo() = 0;
+    virtual bool hasReceivedFirstTelegram() = 0;
+    virtual void markFirstTelegramReceived() = 0;
 
     virtual string datetimeOfUpdateHumanReadable() = 0;
     virtual string datetimeOfUpdateRobot() = 0;
@@ -435,6 +448,8 @@ struct Meter
                                 bool simulated, std::vector<Address> *addresses,
                                 bool *id_match, Telegram *out_t = NULL) = 0;
     virtual MeterKeys *meterKeys() = 0;
+    virtual void setMeterManager(MeterManager *mm) = 0;
+    virtual MeterManager *meterManager() = 0;
 
     virtual void addExtraCalculatedField(std::string ecf) = 0;
     virtual void addShellMeterAdded(std::string cmdline) = 0;
@@ -455,7 +470,6 @@ struct MeterManager
 {
     virtual void addMeterTemplate(MeterInfo &mi) = 0;
     virtual void addMeter(shared_ptr<Meter> meter) = 0;
-    virtual void triggerMeterAdded(shared_ptr<Meter> meter) = 0;
     virtual Meter*lastAddedMeter() = 0;
     virtual void removeAllMeters() = 0;
     virtual void forEachMeter(std::function<void(Meter*)> cb) = 0;
@@ -463,7 +477,6 @@ struct MeterManager
     virtual bool hasAllMetersReceivedATelegram() = 0;
     virtual bool hasMeters() = 0;
     virtual void onTelegram(function<bool(AboutTelegram&,vector<uchar>)> cb) = 0;
-    virtual void whenMeterAdded(std::function<void(shared_ptr<Meter>)> cb) = 0;
     virtual void whenMeterUpdated(std::function<void(Telegram*t,Meter*)> cb) = 0;
     virtual void pollMeters(shared_ptr<BusManager> bus) = 0;
     virtual void analyzeEnabled(bool b, OutputFormat f, string force_driver, string key, bool verbose, int profile) = 0;

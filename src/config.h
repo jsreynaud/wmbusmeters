@@ -39,7 +39,7 @@ enum class MeterFileNaming
 
 enum class MeterFileTimestamp
 {
-    Never, Day, Hour, Minute, Micros
+    Never, Month, Day, Hour, Minute, Micros
 };
 
 enum class LogSummary
@@ -95,6 +95,7 @@ struct Configuration
     bool use_logfile {};
     bool use_stderr_for_log = true; // Default is to use stderr for logging.
     bool ignore_duplicate_telegrams = true; // Default is to ignore duplicates.
+    bool detailed_first = false; // Print additional lines in telegram mapping back to driver field.
     std::string logfile;
     bool json {};
     bool pretty_print_json {};
@@ -103,14 +104,15 @@ struct Configuration
     bool fields {};
     char separator { ';' };
     std::vector<std::string> telegram_shells;
-    std::vector<std::string> meter_shells;
+    std::vector<std::string> new_meter_shells;
     std::vector<std::string> alarm_shells;
     int alarm_timeout {}; // Maximum number of seconds between dongle receiving two telegrams.
     std::string alarm_expected_activity; // Only warn when within these time periods.
     bool exit_instead_of_alarm_ {};
     bool list_shell_envs {};
     bool list_fields {};
-    bool list_meters {};
+    bool list_meters {}; // Should be renamed to drivers.
+    bool print_driver {};
     bool list_units {};
     std::string list_meters_search;
     // When asking for envs or fields, this is the meter type to list for.

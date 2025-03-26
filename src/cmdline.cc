@@ -415,6 +415,10 @@ static shared_ptr<Configuration> parseNormalCommandLine(Configuration *c, int ar
                 {
                     c->meterfiles_timestamp = MeterFileTimestamp::Day;
                 }
+                else if (!strncmp(argv[i]+22, "month", 5))
+                {
+                    c->meterfiles_timestamp = MeterFileTimestamp::Month;
+                }
                 else if (!strncmp(argv[i]+22, "hour", 4))
                 {
                     c->meterfiles_timestamp = MeterFileTimestamp::Hour;
@@ -504,6 +508,11 @@ static shared_ptr<Configuration> parseNormalCommandLine(Configuration *c, int ar
             i++;
             continue;
         }
+        if (!strcmp(argv[i], "--detailedfirst")) {
+            c->detailed_first = true;
+            i++;
+            continue;
+        }
         if (!strncmp(argv[i], "--shell=", 8)) {
             string cmd = string(argv[i]+8);
             if (cmd == "") {
@@ -518,7 +527,7 @@ static shared_ptr<Configuration> parseNormalCommandLine(Configuration *c, int ar
             if (cmd == "") {
                 error("The meter shell command cannot be empty.\n");
             }
-            c->meter_shells.push_back(cmd);
+            c->new_meter_shells.push_back(cmd);
             i++;
             continue;
         }
@@ -571,6 +580,12 @@ static shared_ptr<Configuration> parseNormalCommandLine(Configuration *c, int ar
         if (!strncmp(argv[i], "--listfields=", 13)) {
             c->list_fields = true;
             c->list_meter = string(argv[i]+13);
+            i++;
+            continue;
+        }
+        if (!strncmp(argv[i], "--printdriver=", 14)) {
+            c->print_driver = true;
+            c->list_meter = string(argv[i]+14);
             i++;
             continue;
         }
@@ -710,7 +725,8 @@ static shared_ptr<Configuration> parseNormalCommandLine(Configuration *c, int ar
         !c->list_shell_envs &&
         !c->list_fields &&
         !c->list_meters &&
-        !c->list_units)
+        !c->list_units &&
+        !c->print_driver)
     {
         error("You must supply at least one device to communicate using (w)mbus.\n");
     }

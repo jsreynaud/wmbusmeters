@@ -65,6 +65,7 @@ struct MeterCommonImplementation : public virtual Meter
     vector<string> &extraConstantFields();
     string name();
     DriverName driverName();
+    DriverInfo *driverInfo();
     bool hasProcessContent();
 
     ELLSecurityMode expectedELLSecurityMode();
@@ -84,6 +85,8 @@ struct MeterCommonImplementation : public virtual Meter
 
     static bool isTelegramForMeter(Telegram *t, Meter *meter, MeterInfo *mi);
     MeterKeys *meterKeys();
+    void setMeterManager(MeterManager *mm);
+    MeterManager *meterManager();
 
     MeterCommonImplementation(MeterInfo &mi, DriverInfo &di);
 
@@ -104,6 +107,7 @@ protected:
     void addLinkMode(LinkMode lm);
     void setMfctTPLStatusBits(Translate::Lookup &lookup);
 
+    void markLastFieldAsLibrary();
 
     void addNumericFieldWithExtractor(
         string vname,           // Name of value without unit, eg "total" "total_month{storagenr}"
@@ -211,12 +215,15 @@ protected:
     void setSelectedFields(vector<string> &f) { selected_fields_ = f; }
 
     void forceMfctIndex(int i) { force_mfct_index_  = i; }
+    bool hasReceivedFirstTelegram() {  return has_received_first_telegram_; }
+    void markFirstTelegramReceived() { has_received_first_telegram_ = true; }
 
 private:
 
     int index_ {};
     MeterType type_ {};
     DriverName driver_name_;
+    DriverInfo *driver_info_ {};
     string bus_ {};
     MeterKeys meter_keys_ {};
     ELLSecurityMode expected_ell_sec_mode_ {};
@@ -236,10 +243,14 @@ private:
     Translate::Lookup mfct_tpl_status_bits_ = NoLookup;
     int force_mfct_index_ = -1;
     bool has_process_content_ = false;
+    bool has_received_first_telegram_ = false;
+    MeterManager *meter_manager_ {};
 
 protected:
 
     vector<FieldInfo> field_infos_;
+    // This is the number of fields in the driver, not counting the used library fields.
+    size_t num_driver_fields_ {};
     vector<string> field_names_;
     // Defaults to a setting specified in the driver. Can be overridden in the meter file.
     // There is also a global selected_fields that can be set on the command line or in the conf file.

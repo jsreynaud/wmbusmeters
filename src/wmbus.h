@@ -44,12 +44,13 @@ bool trimCRCsFrameFormatB(std::vector<uchar> &payload);
     X(CUL,cul,true,false,detectCUL)                  \
     X(IM871A,im871a,true,false,detectIM871AIM170A)   \
     X(IM170A,im170a,true,false,detectSKIP)           \
+    X(IU891A,iu891a,true,false,detectIU891A)         \
     X(RAWTTY,rawtty,true,false,detectRAWTTY)         \
     X(HEXTTY,hextty,true,false,detectSKIP)           \
     X(RC1180,rc1180,true,false,detectRC1180)         \
     X(RTL433,rtl433,false,true,detectRTL433)         \
     X(RTLWMBUS,rtlwmbus,false,true,detectRTLWMBUS)   \
-    X(IU880B,iu880b,true,false,detectIU880B)         \
+    X(IU880B,iu880b,true,false,detectSKIP)         \
     X(SIMULATION,simulation,false,false,detectSIMULATION)
 
 enum BusDeviceType {
@@ -85,6 +86,8 @@ const char *toLowerCaseString(BusDeviceType t);
 BusDeviceType toBusDeviceType(string &t);
 
 void setIgnoreDuplicateTelegrams(bool idt);
+void setDetailedFirst(bool df);
+bool getDetailedFirst();
 
 // In link mode S1, is used when both the transmitter and receiver are stationary.
 // It can be transmitted relatively seldom.
@@ -401,6 +404,8 @@ struct Explanation
         pos(p), len(l), info(i), kind(k), understanding(u) {}
 };
 
+struct Meter;
+
 struct Telegram
 {
 private:
@@ -410,6 +415,8 @@ public:
     Telegram() = default;
 
     AboutTelegram about;
+
+    Meter *meter {};
 
     // If set to true then this telegram should be trigger updates.
     bool discard {};
@@ -704,6 +711,9 @@ shared_ptr<BusDevice> openIM871A(Detected detected,
 shared_ptr<BusDevice> openIM170A(Detected detected,
                              shared_ptr<SerialCommunicationManager> manager,
                              shared_ptr<SerialDevice> serial_override);
+shared_ptr<BusDevice> openIU891A(Detected detected,
+                             shared_ptr<SerialCommunicationManager> manager,
+                             shared_ptr<SerialDevice> serial_override);
 shared_ptr<BusDevice> openIU880B(Detected detected,
                              shared_ptr<SerialCommunicationManager> manager,
                              shared_ptr<SerialDevice> serial_override);
@@ -800,6 +810,7 @@ AccessCheck detectAMB8465AMB3665(Detected *detected, shared_ptr<SerialCommunicat
 AccessCheck detectCUL(Detected *detected, shared_ptr<SerialCommunicationManager> handler);
 AccessCheck detectD1TC(Detected *detected, shared_ptr<SerialCommunicationManager> manager);
 AccessCheck detectIM871AIM170A(Detected *detected, shared_ptr<SerialCommunicationManager> handler);
+AccessCheck detectIU891A(Detected *detected, shared_ptr<SerialCommunicationManager> handler);
 AccessCheck detectIU880B(Detected *detected, shared_ptr<SerialCommunicationManager> handler);
 AccessCheck detectRAWTTY(Detected *detected, shared_ptr<SerialCommunicationManager> handler);
 AccessCheck detectMBUS(Detected *detected, shared_ptr<SerialCommunicationManager> handler);

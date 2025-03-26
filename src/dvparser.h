@@ -44,11 +44,12 @@
     X(EnergyMJ,0x08,0x0F, Quantity::Energy, Unit::MJ) \
     X(EnergyWh,0x00,0x07, Quantity::Energy, Unit::KWH) \
     X(PowerW,0x28,0x2f, Quantity::Power, Unit::KW) \
+    X(PowerJh,0x30,0x37, Quantity::Power, Unit::MJH) \
     X(ActualityDuration,0x74,0x77, Quantity::Time, Unit::Hour) \
     X(FabricationNo,0x78,0x78, Quantity::Text, Unit::TXT) \
     X(EnhancedIdentification,0x79,0x79, Quantity::Text, Unit::TXT) \
     X(EnergyMWh,0x7B00,0x7B01, Quantity::Energy, Unit::KWH) \
-    X(EnergyGJ,0x7B09,0x7B0A, Quantity::Energy, Unit::MJ) \
+    X(EnergyGJ,0x7B08,0x7B09, Quantity::Energy, Unit::MJ) \
     X(RelativeHumidity,0x7B1A,0x7B1B, Quantity::RH, Unit::RH) \
     X(AccessNumber,0x7D08,0x7D08, Quantity::Counter, Unit::COUNTER) \
     X(Medium,0x7D09,0x7D09, Quantity::Text, Unit::TXT) \

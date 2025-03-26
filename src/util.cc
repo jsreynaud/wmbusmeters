@@ -1355,7 +1355,19 @@ string currentYear()
     return string(datetime);
 }
 
-string currentDay()
+string currentYearMonth()
+{
+    char datetime[40];
+    memset(datetime, 0, sizeof(datetime));
+
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+
+    strftime(datetime, 20, "%Y-%m", localtime(&tv.tv_sec));
+    return string(datetime);
+}
+
+string currentYearMonthDay()
 {
     char datetime[40];
     memset(datetime, 0, sizeof(datetime));
@@ -2011,6 +2023,7 @@ void removeSlipFraming(vector<uchar>& from, size_t *frame_length, vector<uchar> 
         }
         else if (esc)
         {
+            esc = false;
             if (c == SLIP_ESC_END) to.push_back(SLIP_END);
             else if (c == SLIP_ESC_ESC) to.push_back(SLIP_ESC);
             else to.push_back(c); // This is an error......
